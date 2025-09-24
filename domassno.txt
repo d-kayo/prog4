@@ -1,0 +1,4 @@
+floyd warshall
+a adj matrix
+b edge list print se na stdout
+uva 1416 warfare and logistics
