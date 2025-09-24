@@ -12,7 +12,7 @@ int main() {
 
     int n, m;
     ll L;
-    cin >> n >> m >> L;   // read exactly one test case
+    cin >> n >> m >> L;  
 
     vector<Edge> edges(m);
     vector<vector<AdjEdge>> adj(n + 1);
@@ -46,7 +46,7 @@ int main() {
         return dist;
     };
 
-    // 1) Compute all-pairs shortest paths for original graph
+    
     vector<vector<ll>> dist0(n + 1, vector<ll>(n + 1, INF));
     vector<ll> sum_from(n + 1, 0);
     ll total_orig = 0;
@@ -62,13 +62,13 @@ int main() {
 
     ll best_after = total_orig;
 
-    // 2) Try removing each edge
+    
     for (int ei = 0; ei < m; ++ei) {
         int u = edges[ei].u, v = edges[ei].v, w = edges[ei].w;
 
         vector<char> affected(n + 1, 0);
 
-        // Detect affected sources: if any (s,t) shortest path uses this edge
+       
         for (int s = 1; s <= n; ++s) {
             for (int t = 1; t <= n; ++t) {
                 ll d = dist0[s][t];
@@ -80,7 +80,7 @@ int main() {
                      d == dist0[s][v] + w + dist0[u][t]);
                 if (uses_edge) {
                     affected[s] = 1;
-                    break; // only need to mark s once
+                    break; 
                 }
             }
         }
@@ -88,7 +88,7 @@ int main() {
         ll tot_after = 0;
         for (int s = 1; s <= n; ++s) {
             if (!affected[s]) {
-                tot_after += sum_from[s]; // unchanged
+                tot_after += sum_from[s]; 
             } else {
                 auto d = dijkstra(s, ei);
                 for (int t = 1; t <= n; ++t)
