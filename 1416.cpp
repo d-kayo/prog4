@@ -1,103 +1,62 @@
 #include <bits/stdc++.h>
 using namespace std;
-using ll = long long;
-const ll INF = (1LL << 60);
+long long INF = 1e15;
 
-struct Edge { int u, v, w; };
-struct AdjEdge { int to, w, idx; };
-
-int main() {
+int main(){
     ios::sync_with_stdio(false);
-    cin.tie(nullptr);
+    cin.tie(0);
 
-    int n, m;
-    ll L;
-    cin >> n >> m >> L;  
+    int m, p;
+    long long l;
+    while(cin >> m >> p >> ){
+        vector<tuple<int,int,long long>> v;
+        vector<vector<long long>> mat(m+1, vector<long long>(m+1, INF));
+        for(int i=1;i<=m;i++) mat[i][i]=0;
+        for(int i=0;i<p;i++){
+            int a,b; long long c;
+            cin >> a >> b >> c;
+            v.push_back({a,b,c});
+            mat[a][b]=min(mat[a][b],c);
+            mat[b][a]=min(mat[b][a],c);
+        }
+        for(int k=1;k<=m;k++)
+            for(int i=1;i<=m;i++)
+                for(int j=1;j<=m;j++)
+                    if(mat[i][k]+mat[k][j]<mat[i][j]) mat[i][j]=mat[i][k]+mat[k][j];
 
-    vector<Edge> edges(m);
-    vector<vector<AdjEdge>> adj(n + 1);
-
-    for (int i = 0; i < m; ++i) {
-        int a, b, s;
-        cin >> a >> b >> s;
-        edges[i] = {a, b, s};
-        adj[a].push_back({b, s, i});
-        adj[b].push_back({a, s, i});
-    }
-
-    auto dijkstra = [&](int src, int removed_idx) {
-        vector<ll> dist(n + 1, INF);
-        dist[src] = 0;
-        priority_queue<pair<ll, int>, vector<pair<ll, int>>, greater<>> pq;
-        pq.push({0, src});
-        while (!pq.empty()) {
-            auto [d, u] = pq.top(); pq.pop();
-            if (d != dist[u]) continue;
-            for (auto &e : adj[u]) {
-                if (e.idx == removed_idx) continue;
-                int v = e.to;
-                ll nd = d + e.w;
-                if (nd < dist[v]) {
-                    dist[v] = nd;
-                    pq.push({nd, v});
+        auto vk=[&](vector<vector<long long>> &d){
+            long long zbir=0;
+            for(int i=1;i<=m;i++){
+                for(int j=1;j<=m;j++){
+                    if(d[i][j]>=INF/2) zbir+=l;
+                    else zbir+=d[i][j];
                 }
             }
-        }
-        return dist;
-    };
+            return zbir;
+        };
 
-    
-    vector<vector<ll>> dist0(n + 1, vector<ll>(n + 1, INF));
-    vector<ll> sum_from(n + 1, 0);
-    ll total_orig = 0;
+        long long s=vk(mat);
+        long long maxx=s;
 
-    for (int s = 1; s <= n; ++s) {
-        auto d = dijkstra(s, -1);
-        for (int t = 1; t <= n; ++t) {
-            dist0[s][t] = d[t];
-            sum_from[s] += (d[t] == INF ? L : d[t]);
-        }
-        total_orig += sum_from[s];
-    }
-
-    ll best_after = total_orig;
-
-    
-    for (int ei = 0; ei < m; ++ei) {
-        int u = edges[ei].u, v = edges[ei].v, w = edges[ei].w;
-
-        vector<char> affected(n + 1, 0);
-
-       
-        for (int s = 1; s <= n; ++s) {
-            for (int t = 1; t <= n; ++t) {
-                ll d = dist0[s][t];
-                if (d == INF) continue;
-                bool uses_edge =
-                    (dist0[s][u] != INF && dist0[v][t] != INF &&
-                     d == dist0[s][u] + w + dist0[v][t]) ||
-                    (dist0[s][v] != INF && dist0[u][t] != INF &&
-                     d == dist0[s][v] + w + dist0[u][t]);
-                if (uses_edge) {
-                    affected[s] = 1;
-                    break; 
+        for(auto [a,b,c]:v){
+            vector<vector<long long>> d(m+1, vector<long long>(m+1,INF));
+            for(int i=1;i<=m;i++) d[i][i]=0;
+            bool skok=false;
+            for(auto [x,y,z]:v){
+                if(!skok && ((x==a && y==b && z==c)||(x==b && y==a && z==c))){
+                    skok=true;
+                    continue;
                 }
+                d[x][y]=min(d[x][y],z);
+                d[y][x]=min(d[y][x],z);
             }
+            for(int k=1;k<=m;k++)
+                for(int i=1;i<=m;i++)
+                    for(int j=1;j<=m;j++)
+                        if(d[i][k]+d[k][j]<d[i][j]) d[i][j]=d[i][k]+d[k][j];
+            long long s=vk(d);
+            if(s>maxx) maxx=s;
         }
-
-        ll tot_after = 0;
-        for (int s = 1; s <= n; ++s) {
-            if (!affected[s]) {
-                tot_after += sum_from[s]; 
-            } else {
-                auto d = dijkstra(s, ei);
-                for (int t = 1; t <= n; ++t)
-                    tot_after += (d[t] == INF ? L : d[t]);
-            }
-        }
-        best_after = max(best_after, tot_after);
+        cout << s << " " << maxx << "\n";
     }
-
-    cout << total_orig << " " << best_after << "\n";
-    return 0;
 }
