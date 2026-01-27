@@ -38,7 +38,7 @@ struct BigInt {
         return BigInt(res);
     }
 
-    
+     
     BigInt operator*(const BigInt& other) const {
         if (value == "0" || other.value == "0") return BigInt("0");
         vector<int> res(value.size() + other.value.size(), 0);
